@@ -1,34 +1,23 @@
-name: Verify FluidToken Contract
+- name: Checkout Repository
+  uses: actions/checkout@v3
 
-on:
-  workflow_dispatch:
+- name: Setup Node.js
+  uses: actions/setup-node@v3
+  with:
+    node-version: 20
 
-jobs:
-  verify:
-    runs-on: ubuntu-latest
+- name: Clean NPM Cache
+  run: npm cache clean --force
 
-    steps:
-      # Step 1: Checkout repo
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+- name: Install Dependencies
+  run: |
+    rm -rf node_modules package-lock.json
+    npm install --legacy-peer-deps
 
-      # Step 2: Setup Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      # Step 3: Install dependencies safely
-      - name: Install Dependencies
-        run: |
-          rm -rf node_modules package-lock.json
-          npm install --legacy-peer-deps
-
-      # Step 4: Verify contract
-      - name: Verify Contract
-        env:
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
-          POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
-        run: |
-          npx hardhat verify --network polygon 0x482eE2E3F715e25d5231747de9e9A647Fc904512 "Fluid Token" "FLUID"
+- name: Verify Contract
+  env:
+    PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+    POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
+    POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
+  run: |
+    npx hardhat verify --network polygon 0x482eE2E3F715e25d5231747de9e9A647Fc904512 "Fluid Token" "FLUID"
