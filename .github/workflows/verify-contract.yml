@@ -1,4 +1,4 @@
-name: Verify Contract
+name: Auto-Verify FluidToken
 
 on:
   workflow_dispatch:
@@ -6,30 +6,43 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+    env:
+      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+      POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
+      POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
 
-      - name: Set up Node.js
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      - name: Clean NPM Cache
-        run: npm cache clean --force
-
-      - name: Remove old modules
-        run: rm -rf node_modules package-lock.json
+      - name: Clean NPM
+        run: |
+          rm -rf node_modules package-lock.json
+          npm cache clean --force
 
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Verify Contract
-        env:
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
-          POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
-        run: |
-          npx hardhat verify --network polygon 0x482eE2E3F715e25d5231747de9e9A647Fc904512 "Fluid Token" "FLUID"
+      - name: Compile Contracts
+        run: npx hardhat clean && npx hardhat compile
 
-      - name: Export Contract ABI
-        run: npm run export-abi
+      - name: Read Deployment Info
+        id: read_deploy
+        run: |
+          DEPLOY_FILE=deployments/polygon.json
+          ADDRESS=$(jq -r '.address' $DEPLOY_FILE)
+          ARGS=$(jq -c '.constructorArgs' $DEPLOY_FILE)
+          echo "DEPLOY_ADDRESS=$ADDRESS" >> $GITHUB_ENV
+          echo "CONSTRUCTOR_ARGS=$ARGS" >> $GITHUB_ENV
+
+      - name: Verify Contract on Polygon
+        run: |
+          npx hardhat verify \
+            --network polygon \
+            $DEPLOY_ADDRESS \
+            $CONSTRUCTOR_ARGS
