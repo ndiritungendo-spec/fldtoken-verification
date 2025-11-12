@@ -8,19 +8,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout repo
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      # Step 2: Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
+      # Step 3: Install dependencies safely
       - name: Install Dependencies
         run: |
           rm -rf node_modules package-lock.json
           npm install --legacy-peer-deps
 
+      # Step 4: Verify contract
       - name: Verify Contract
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
