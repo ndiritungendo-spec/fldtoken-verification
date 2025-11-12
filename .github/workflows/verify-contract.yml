@@ -1,42 +1,41 @@
-name: Verify Fluid Token on Polygon
+name: Verify Fluid Token Contract
 
 on:
+  workflow_dispatch: # allows manual triggering
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
-  verify-contract:
+  verify:
     runs-on: ubuntu-latest
-    env:
-      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-      POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
-      POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
 
     steps:
-      - name: Checkout repository
+      # Checkout the repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
+      # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: '20'
 
-      - name: Clean npm cache
+      # Clean NPM cache (optional but recommended)
+      - name: Clean NPM Cache
         run: npm cache clean --force
 
-      - name: Install dependencies (ignore peer conflicts)
+      # Install dependencies ignoring peer conflicts
+      - name: Install dependencies
         run: |
           rm -rf node_modules package-lock.json
           npm install --legacy-peer-deps
 
-      - name: Compile contracts
-        run: npx hardhat compile
-
-      - name: Verify Fluid Token contract
+      # Verify the contract on Polygon
+      - name: Verify Fluid Token on Polygon
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
+          POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
         run: |
-          npx hardhat verify \
-            --network polygon \
-            0x482eE2E3F715e25d5231747de9e9A647Fc904512 \
-            "Fluid Token" "FLD"
+          npx hardhat verify --network polygon 0x482eE2E3F715e25d5231747de9e9A647Fc904512 "Fluid Token" "FLD"
