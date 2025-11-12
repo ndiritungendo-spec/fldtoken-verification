@@ -1,9 +1,9 @@
 {
-  "name": "fluidtoken-verification",
+  "name": "fldtoken-verification",
   "version": "1.0.0",
   "scripts": {
     "verify": "npx hardhat verify --network polygon 0x482eE2E3F715e25d5231747de9e9A647Fc904512 'Fluid Token' 'FLUID'",
-    "compile": "npx hardhat compile"
+    "export-abi": "node scripts/export-abi.js"
   },
   "devDependencies": {
     "hardhat": "^2.27.0",
