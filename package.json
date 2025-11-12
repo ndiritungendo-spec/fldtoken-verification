@@ -5,9 +5,10 @@
     "verify": "npx hardhat verify --network polygon 0x482eE2E3F715e25d5231747de9e9A647Fc904512 'Fluid Token' 'FLUID'"
   },
   "devDependencies": {
-    "hardhat": "^3.1.0",
-    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
-    "ethers": "^6.0.0",
-    "dotenv": "^16.3.1"
+  "hardhat": "^2.27.0",
+  "@nomicfoundation/hardhat-toolbox": "^2.1.0",
+  "ethers": "^6.0.0",
+  "dotenv": "^16.3.1"
   }
 }
+
