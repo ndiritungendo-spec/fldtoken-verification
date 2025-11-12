@@ -1,0 +1,34 @@
+name: Verify FluidToken Contract
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install All Dependencies
+        run: |
+          rm -rf node_modules package-lock.json
+          npm install --save-dev hardhat@^3.5.0 \
+            @nomicfoundation/hardhat-toolbox@^3.0.0 \
+            @nomicfoundation/hardhat-verify@^3.0.6 \
+            ethers@^6.8.0 dotenv@^16.3.1
+          npm install @openzeppelin/contracts
+
+      - name: Verify Contract
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
+          POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
+        run: |
+          npx hardhat verify --network polygon 0x482eE2E3F715e25d5231747de9e9A647Fc904512 "Fluid Token" "FLUID"
