@@ -2,7 +2,14 @@ require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 
 module.exports = {
-  solidity: "0.8.20",
+  solidity: {
+    version: "0.8.20",  // matches your FluidToken contract
+    settings: {
+      optimizer: {
+        enabled: false
+      }
+    }
+  },
   networks: {
     polygon: {
       url: process.env.POLYGON_RPC_URL,
