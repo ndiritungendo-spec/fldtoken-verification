@@ -1,23 +1,35 @@
-- name: Checkout Repository
-  uses: actions/checkout@v3
+name: Verify Contract
 
-- name: Setup Node.js
-  uses: actions/setup-node@v3
-  with:
-    node-version: 20
+on:
+  workflow_dispatch:
 
-- name: Clean NPM Cache
-  run: npm cache clean --force
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
 
-- name: Install Dependencies
-  run: |
-    rm -rf node_modules package-lock.json
-    npm install --legacy-peer-deps
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
 
-- name: Verify Contract
-  env:
-    PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-    POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
-    POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
-  run: |
-    npx hardhat verify --network polygon 0x482eE2E3F715e25d5231747de9e9A647Fc904512 "Fluid Token" "FLUID"
+      - name: Clean NPM Cache
+        run: npm cache clean --force
+
+      - name: Remove old modules
+        run: rm -rf node_modules package-lock.json
+
+      - name: Install Dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Verify Contract
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
+          POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
+        run: |
+          npx hardhat verify --network polygon 0x482eE2E3F715e25d5231747de9e9A647Fc904512 "Fluid Token" "FLUID"
+
+      - name: Export Contract ABI
+        run: npm run export-abi
